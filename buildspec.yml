@@ -1,32 +1,45 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: us-east-1
+    CLUSTER_NAME: my-eks-cluster
+    ECR_REPO: 758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app
+
 phases:
+
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 758002376518.dkr.ecr.us-east-1.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
+      - echo Setting IMAGE_TAG...
+      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - echo Image tag is $IMAGE_TAG
 
   build:
     commands:
       - echo Installing dependencies...
       - npm install
 
-      - echo Building Angular app...
+      - echo Building Angular application...
       - npm run build
 
       - echo Building Docker image...
-      - docker build -t book-k8s-app:latest .
-
-      - docker tag book-k8s-app:latest 758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app:latest
+      - docker build -t $ECR_REPO:$IMAGE_TAG .
 
   post_build:
     commands:
-      - echo Pushing image to ECR...
-      - docker push 758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app:latest
+      - echo Pushing Docker image to ECR...
+      - docker push $ECR_REPO:$IMAGE_TAG
 
-      - echo Updating EKS deployment...
-      - aws eks update-kubeconfig --name my-eks-cluster --region us-east-1
+      - echo Updating kubeconfig for EKS...
+      - aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
 
-      - kubectl set image deployment/model-books my-book=758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app:latest
+      - echo Updating Kubernetes deployment image...
+      - kubectl set image deployment/model-books my-book=$ECR_REPO:$IMAGE_TAG
 
+      - echo Waiting for rollout to complete...
       - kubectl rollout status deployment/model-books
+
+      - echo Deployment completed successfully!
