@@ -1,0 +1,24 @@
+
+<div class="container">
+
+  <h1>Book App</h1>
+
+  <input
+    type="text"
+    [(ngModel)]="bookName"
+    placeholder="Enter Book Name"
+  >
+
+  <button (click)="addBook()">Add Book</button>
+
+  <ul>
+    <li *ngFor="let book of books; let i = index">
+      {{ book }}
+
+      <button class="delete-btn" (click)="deleteBook(i)">
+        Delete
+      </button>
+    </li>
+  </ul>
+
+</div>
