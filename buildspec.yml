@@ -1,45 +1,64 @@
+# version: 0.2
+
+# env:
+#   variables:
+#     AWS_REGION: us-east-1
+#     CLUSTER_NAME: my-eks-cluster
+#     ECR_REPO: 758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app
+
+# phases:
+
+#   pre_build:
+#     commands:
+#       - echo Logging in to Amazon ECR...
+#       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
+#       - echo Setting IMAGE_TAG...
+#       - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+#       - echo Image tag is $IMAGE_TAG
+
+#   build:
+#     commands:
+#       - echo Installing dependencies...
+#       - npm install
+
+#       - echo Building Angular application...
+#       - npm run build
+
+#       - echo Building Docker image...
+#       - docker build -t $ECR_REPO:$IMAGE_TAG .
+
+#   post_build:
+#     commands:
+#       - echo Pushing Docker image to ECR...
+#       - docker push $ECR_REPO:$IMAGE_TAG
+
+#       - echo Updating kubeconfig for EKS...
+#       - aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+
+#       - echo Updating Kubernetes deployment image...
+#       - kubectl set image deployment/model-books my-book=$ECR_REPO:$IMAGE_TAG
+
+#       - echo Waiting for rollout to complete...
+#       - kubectl rollout status deployment/model-books
+
+#       - echo Deployment completed successfully!
+
+
+
 version: 0.2
 
-env:
-  variables:
-    AWS_REGION: us-east-1
-    CLUSTER_NAME: my-eks-cluster
-    ECR_REPO: 758002376518.dkr.ecr.us-east-1.amazonaws.com/book-k8s-app
-
 phases:
-
-  pre_build:
+  install:
+    runtime-versions:
+      nodejs: 18
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
-
-      - echo Setting IMAGE_TAG...
-      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
-      - echo Image tag is $IMAGE_TAG
+      - npm install
 
   build:
     commands:
-      - echo Installing dependencies...
-      - npm install
-
-      - echo Building Angular application...
       - npm run build
 
-      - echo Building Docker image...
-      - docker build -t $ECR_REPO:$IMAGE_TAG .
-
-  post_build:
-    commands:
-      - echo Pushing Docker image to ECR...
-      - docker push $ECR_REPO:$IMAGE_TAG
-
-      - echo Updating kubeconfig for EKS...
-      - aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
-
-      - echo Updating Kubernetes deployment image...
-      - kubectl set image deployment/model-books my-book=$ECR_REPO:$IMAGE_TAG
-
-      - echo Waiting for rollout to complete...
-      - kubectl rollout status deployment/model-books
-
-      - echo Deployment completed successfully!
+artifacts:
+  files:
+    - '**/*'

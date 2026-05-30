@@ -1,26 +1,51 @@
+<div class="book-container">
 
-<div class="container">
+  <div class="book-card">
 
-  <h1>Book App</h1>
-  <h2>This is sunil from banglore</h2>
-  <span>All the best your youre feature</span>
+    <h1>📚 Book Manager</h1>
 
-  <input
-    type="text"
-    [(ngModel)]="bookName"
-    placeholder="Enter Book Name"
-  >
+    <p class="subtitle">
+      Welcome! Manage your favorite books easily.
+    </p>
 
-  <button (click)="addBook()">Add Book</button>
+    <div class="input-section">
+      <input
+        type="text"
+        [(ngModel)]="bookName"
+        placeholder="Enter Book Name"
+      />
 
-  <ul>
-    <li *ngFor="let book of books; let i = index">
-      {{ book }}
-
-      <button class="delete-btn" (click)="deleteBook(i)">
-        Delete
+      <button (click)="addBook()">
+        ➕ Add Book
       </button>
-    </li>
-  </ul>
+    </div>
+
+    <div class="book-list">
+      <h3>Your Books</h3>
+
+      <ul>
+        <li *ngFor="let book of books; let i = index">
+
+          <span class="book-title">
+            📖 {{ book }}
+          </span>
+
+          <button
+            class="delete-btn"
+            (click)="deleteBook(i)"
+          >
+            🗑 Delete
+          </button>
+
+        </li>
+      </ul>
+
+      <p *ngIf="books.length === 0" class="empty-msg">
+        No books added yet.
+      </p>
+
+    </div>
+
+  </div>
 
 </div>
